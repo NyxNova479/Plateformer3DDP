@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class PlayerBehaviour : MonoBehaviour
 {
+    [SerializeField] private float health = 100f;
+
     [SerializeField] private float speed = 10f;
     [SerializeField] private float jumpForce = 5f; 
 
@@ -15,6 +17,12 @@ public class PlayerBehaviour : MonoBehaviour
     {
         get { return speed; }
         set { speed = value; }
+    }
+
+    public float Health
+    {
+        get { return health; }
+        set { health = value; }
     }
 
     void Start()
