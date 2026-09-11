@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HealthBarBehaviour : MonoBehaviour
+public class PlayerHealthbar : MonoBehaviour
 {
 
     [SerializeField] Slider healthBarSlider;
@@ -16,12 +16,17 @@ public class HealthBarBehaviour : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        if (playerBehaviour != null)
+        {
+            healthBarSlider.value = playerBehaviour.Health;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        healthBarSlider.value = playerBehaviour.Health;
+
+        healthBarSlider.value = Mathf.Clamp01(playerBehaviour.Health / 100f);
+
     }
 }
