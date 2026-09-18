@@ -46,6 +46,8 @@ public class LinerBehaviour : Enemy
         {
             currentTargetIndex = (currentTargetIndex + 1) % targets.Length;
         }
+
+
     }
 
 }

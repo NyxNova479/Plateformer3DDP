@@ -18,15 +18,40 @@ public class PlayerHealthbar : MonoBehaviour
     {
         if (playerBehaviour != null)
         {
-            healthBarSlider.value = playerBehaviour.Health;
+            healthBarSlider.value = Mathf.Clamp01(playerBehaviour.Health / 100f);
+            // Subscribe to player's health events if available
+            playerBehaviour.OnHealthChanged += OnPlayerHealthChanged;
+            playerBehaviour.OnDeath += OnPlayerDeath;
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (playerBehaviour != null && healthBarSlider != null)
+        {
+            healthBarSlider.value = Mathf.Clamp01(playerBehaviour.Health / 100f);
+        }
+    }
 
-        healthBarSlider.value = Mathf.Clamp01(playerBehaviour.Health / 100f);
+    private void OnDestroy()
+    {
+        if (playerBehaviour != null)
+        {
+            playerBehaviour.OnHealthChanged -= OnPlayerHealthChanged;
+            playerBehaviour.OnDeath -= OnPlayerDeath;
+        }
+    }
 
+    private void OnPlayerHealthChanged(float newHealth)
+    {
+        if (healthBarSlider != null)
+            healthBarSlider.value = Mathf.Clamp01(newHealth / 100f);
+    }
+
+    private void OnPlayerDeath()
+    {
+        if (healthBarSlider != null)
+            Destroy(healthBarSlider.gameObject);
     }
 }

@@ -22,8 +22,7 @@ public class EnemyData : ScriptableObject
         [Tooltip("Damage dealt to the player on collision")]
         public int damage = 3;
 
-        [Tooltip("Optional spawn points relative to world (can be empty)")]
-        public Vector3[] spawnPoints;
+
     }
 
     [SerializeField]

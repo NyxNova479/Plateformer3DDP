@@ -6,11 +6,10 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] private float health = 100f;
     [SerializeField] private float speed = 10f;
     [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private int damage = 5;
     [Header("Combat")]
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackDamage = 25f;
-    [SerializeField] private float attackCooldown = 0.5f;
+    [SerializeField] private float attackCooldown = 1f;
 
     private float lastAttackTime = -999f;
 
@@ -21,7 +20,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     private Rigidbody rb;
     private Vector3 moveInput = Vector3.zero;
-    // La gestion de la caméra a été déplacée vers CameraController
+
 
     public float Speed
     {
@@ -32,8 +31,21 @@ public class PlayerBehaviour : MonoBehaviour
     public float Health
     {
         get { return health; }
-        set { health = value; }
+        set
+        {
+            if (Mathf.Approximately(health, value)) return;
+            health = value;
+            OnHealthChanged?.Invoke(health);
+            if (health <= 0f)
+            {
+                OnDeath?.Invoke();
+            }
+        }
     }
+
+    // Events pour observer la santé et la mort du joueur
+    public event Action<float> OnHealthChanged;
+    public event Action OnDeath;
 
     void Start()
     {
@@ -42,7 +54,6 @@ public class PlayerBehaviour : MonoBehaviour
         {
             Debug.LogWarning("PlayerBehaviour: Rigidbody not found. Movement and jump require a Rigidbody.");
         }
-        // La gestion de la caméra est gérée par CameraController attaché à la caméra
     }
 
     void Update()
@@ -51,11 +62,11 @@ public class PlayerBehaviour : MonoBehaviour
 
         if (isGrounded)
         {
-            coyoteTimer = coyoteTime; // Réinitialisation au sol
+            coyoteTimer = coyoteTime; 
         }
         else
         {
-            coyoteTimer -= Time.deltaTime; // Décompte en l'air
+            coyoteTimer -= Time.deltaTime; 
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && coyoteTimer>0f)

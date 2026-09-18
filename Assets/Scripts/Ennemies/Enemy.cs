@@ -41,6 +41,15 @@ public abstract class Enemy : MonoBehaviour
         Health = Mathf.Max(0f, Health - amount);
     }
 
+    // Initialise l'ennemi avec des valeurs provenant d'une définition
+    public virtual void Initialize(float maxHealth, float moveSpeed, int dmg)
+    {
+        health = maxHealth;
+        speed = moveSpeed;
+        damage = dmg;
+        OnHealthChanged?.Invoke(health);
+    }
+
     [SerializeField] private GameObject deathEffect;
     [SerializeField] private float destroyDelay = 0.5f;
     private bool isDead = false;

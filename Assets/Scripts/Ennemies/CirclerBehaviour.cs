@@ -99,6 +99,7 @@ public class CirclerBehaviour : Enemy
                     currentAngleDeg = Mathf.Atan2(toPos.z, toPos.x) * Mathf.Rad2Deg;
             }
         }
+        transform.LookAt(target.position + new Vector3(0,0.2f,0));
     }
 
 }

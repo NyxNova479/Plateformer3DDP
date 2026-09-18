@@ -29,8 +29,9 @@ public class EnemyHealthBar : MonoBehaviour
         if (enemy != null)
         {
             healthBarSlider.value = Mathf.Clamp01(enemy.Health / 100f);
-            // S'abonne aux changements de vie (Observer)
+            // S'abonne aux changements de vie (Observer) et à la mort
             enemy.OnHealthChanged += OnEnemyHealthChanged;
+            enemy.OnDeath += OnEnemyDeath;
         }
     }
 
@@ -68,13 +69,29 @@ public class EnemyHealthBar : MonoBehaviour
     private void OnDestroy()
     {
         if (enemy != null)
+        {
             enemy.OnHealthChanged -= OnEnemyHealthChanged;
+            enemy.OnDeath -= OnEnemyDeath;
+        }
     }
 
     private void OnEnemyHealthChanged(float newHealth)
     {
         if (healthBarSlider != null)
             healthBarSlider.value = Mathf.Clamp01(newHealth / 100f);
+
+    }
+
+    private void OnEnemyDeath()
+    {
+        if (healthBarSlider != null)
+        {
+            Destroy(healthBarSlider.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
 }
