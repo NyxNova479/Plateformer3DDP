@@ -12,14 +12,7 @@ public class PlayerBehaviour : MonoBehaviour
 
     private Rigidbody rb;
     private Vector3 moveInput = Vector3.zero;
-    [Header("Camera Mouse Look")]
-    [SerializeField] private Transform cameraTransform;
-    [SerializeField] private float mouseSensitivity = 2f;
-    [SerializeField] private float maxPitch = 85f;
-    [SerializeField] private bool lockCursor = true;
-
-    private float yaw = 0f;
-    private float pitch = 0f;
+    // La gestion de la caméra a été déplacée vers CameraController
 
     public float Speed
     {
@@ -40,22 +33,7 @@ public class PlayerBehaviour : MonoBehaviour
         {
             Debug.LogWarning("PlayerBehaviour: Rigidbody not found. Movement and jump require a Rigidbody.");
         }
-        // Initialisation caméra
-        if (cameraTransform == null && Camera.main != null)
-            cameraTransform = Camera.main.transform;
-
-        if (cameraTransform != null)
-        {
-            Vector3 e = cameraTransform.localEulerAngles;
-            pitch = e.x;
-            yaw = transform.eulerAngles.y;
-        }
-
-        if (lockCursor)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
+        // La gestion de la caméra est gérée par CameraController attaché à la caméra
     }
 
     void Update()
@@ -67,12 +45,7 @@ public class PlayerBehaviour : MonoBehaviour
             HandleJump();
         }
 
-        if(Input.GetMouseButtonDown(0))
-        {
-
-        }
-
-        HandleMouseLook();
+        if(Input.GetMouseButtonDown(0)) { }
     }
 
     void FixedUpdate()
@@ -159,28 +132,5 @@ public class PlayerBehaviour : MonoBehaviour
     // Tourne la caméra en fonction de la souris.
     // Yaw: rotation du joueur autour de l'axe Y.
     // Pitch: inclinaison de la caméra (clampée).
-    private void HandleMouseLook()
-    {
-        if (cameraTransform == null) return;
-
-        float mx = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float my = Input.GetAxis("Mouse Y") * mouseSensitivity;
-
-        yaw += mx;
-        pitch -= my;
-        pitch = Mathf.Clamp(pitch, -maxPitch, maxPitch);
-
-        // Applique la rotation horizontale au joueur
-        transform.rotation = Quaternion.Euler(0f, yaw, 0f);
-        // Applique la rotation verticale localement à la caméra
-        cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
-
-        // Permet de relâcher le curseur avec Échap
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            lockCursor = false;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
+    // La gestion de la caméra est externalisée dans CameraController.cs
 }

@@ -13,9 +13,32 @@ public abstract class Enemy : MonoBehaviour
     protected float speed = 5f;
 
 
-    public float Speed {  get { return speed; } set { speed = value; } }
+    public float Speed { get { return speed; } set { speed = value; } }
 
-    public float Health { get { return health; } set { health = value; } }
+    // Events pour Observer / Listener
+    public event Action<float> OnHealthChanged;
+    public event Action OnDeath;
+
+    public float Health
+    {
+        get { return health; }
+        set
+        {
+            if (Mathf.Approximately(health, value)) return;
+            health = value;
+            OnHealthChanged?.Invoke(health);
+            if (health <= 0f)
+            {
+                OnDeath?.Invoke();
+            }
+        }
+    }
+
+    // Méthode utilitaire pour infliger des dégâts
+    public void TakeDamage(float amount)
+    {
+        Health = Mathf.Max(0f, Health - amount);
+    }
 
 
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class EnemyHealthBar : MonoBehaviour
 {
@@ -27,7 +28,9 @@ public class EnemyHealthBar : MonoBehaviour
     {
         if (enemy != null)
         {
-            healthBarSlider.value = enemy.Health;
+            healthBarSlider.value = Mathf.Clamp01(enemy.Health / 100f);
+            // S'abonne aux changements de vie (Observer)
+            enemy.OnHealthChanged += OnEnemyHealthChanged;
         }
     }
 
@@ -35,9 +38,6 @@ public class EnemyHealthBar : MonoBehaviour
     void LateUpdate()
     {
         if (enemy == null || healthBarSlider == null) return;
-
-        // Met à jour la valeur
-        healthBarSlider.value = Mathf.Clamp01(enemy.Health / 100f);
 
         Vector3 worldPos = enemy.transform.position + worldOffset;
 
@@ -64,4 +64,17 @@ public class EnemyHealthBar : MonoBehaviour
             }
         }
     }
+
+    private void OnDestroy()
+    {
+        if (enemy != null)
+            enemy.OnHealthChanged -= OnEnemyHealthChanged;
+    }
+
+    private void OnEnemyHealthChanged(float newHealth)
+    {
+        if (healthBarSlider != null)
+            healthBarSlider.value = Mathf.Clamp01(newHealth / 100f);
+    }
+
 }
