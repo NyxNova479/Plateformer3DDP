@@ -17,7 +17,7 @@ public abstract class Enemy : MonoBehaviour
 
     // Events pour Observer / Listener
     public event Action<float> OnHealthChanged;
-    public event Action OnDeath;
+    public event Action OnDeath ;
 
     public float Health
     {
@@ -30,6 +30,7 @@ public abstract class Enemy : MonoBehaviour
             if (health <= 0f)
             {
                 OnDeath?.Invoke();
+                Die();
             }
         }
     }
@@ -38,6 +39,35 @@ public abstract class Enemy : MonoBehaviour
     public void TakeDamage(float amount)
     {
         Health = Mathf.Max(0f, Health - amount);
+    }
+
+    [SerializeField] private GameObject deathEffect;
+    [SerializeField] private float destroyDelay = 0.5f;
+    private bool isDead = false;
+
+
+    protected virtual void Die()
+    {
+        if (isDead) return;
+        isDead = true;
+        Debug.Log("Died");
+
+        // Jouer un effet si fourni
+        if (deathEffect != null)
+        {
+            Instantiate(deathEffect, transform.position, Quaternion.identity);
+        }
+
+        // Désactiver les colliders pour éviter interactions post-mortem
+        foreach (var col in GetComponents<Collider>())
+        {
+            col.enabled = false;
+        }
+
+        // Détruire l'objet après un court délai
+        Destroy(gameObject, destroyDelay);
+
+        
     }
 
 
@@ -58,7 +88,7 @@ public abstract class Enemy : MonoBehaviour
             PlayerBehaviour player = collision.gameObject.GetComponent<PlayerBehaviour>();
             if (player != null)
             {
-                player.Health -= damage;
+                player.TakeDamage(damage);
             }
         }
     }

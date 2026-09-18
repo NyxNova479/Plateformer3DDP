@@ -7,8 +7,17 @@ public class PlayerBehaviour : MonoBehaviour
     [SerializeField] private float speed = 10f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private int damage = 5;
+    [Header("Combat")]
+    [SerializeField] private float attackRange = 2f;
+    [SerializeField] private float attackDamage = 25f;
+    [SerializeField] private float attackCooldown = 0.5f;
+
+    private float lastAttackTime = -999f;
 
     [SerializeField] private bool isGrounded = true;
+
+    public float coyoteTime = 0.5f; 
+    private float coyoteTimer;
 
     private Rigidbody rb;
     private Vector3 moveInput = Vector3.zero;
@@ -40,17 +49,66 @@ public class PlayerBehaviour : MonoBehaviour
     {
         ReadInput();
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (isGrounded)
         {
-            HandleJump();
+            coyoteTimer = coyoteTime; // Réinitialisation au sol
+        }
+        else
+        {
+            coyoteTimer -= Time.deltaTime; // Décompte en l'air
         }
 
-        if(Input.GetMouseButtonDown(0)) { }
+        if (Input.GetKeyDown(KeyCode.Space) && coyoteTimer>0f)
+        {
+            HandleJump();
+            coyoteTimer = 0;
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            TryAttack();
+        }
     }
 
     void FixedUpdate()
     {
         ApplyMovement();
+    }
+
+    private void TryAttack()
+    {
+        if (Time.time < lastAttackTime + attackCooldown) return;
+        lastAttackTime = Time.time;
+
+        // Centre de l'attaque devant le joueur
+        Vector3 center = transform.position + transform.forward * (attackRange * 0.5f) + Vector3.up * 0.5f;
+        Collider[] hits = Physics.OverlapSphere(center, attackRange);
+        foreach (var c in hits)
+        {
+            if (c == null) continue;
+            Enemy enemy = c.GetComponentInParent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attackDamage);
+            }
+        }
+    }
+
+    public void TakeDamage(float amount)
+    {
+        Health = Mathf.Max(0f, Health - amount);
+        if (Health <= 0f)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+
+        enabled = false;
+        Debug.Log("Player died");
+        // Optionnel : ajouter respawn ou UI
     }
 
     // Lit les entrées et stocke le vecteur de mouvement
@@ -129,8 +187,4 @@ public class PlayerBehaviour : MonoBehaviour
         isGrounded = false;
     }
 
-    // Tourne la caméra en fonction de la souris.
-    // Yaw: rotation du joueur autour de l'axe Y.
-    // Pitch: inclinaison de la caméra (clampée).
-    // La gestion de la caméra est externalisée dans CameraController.cs
 }
