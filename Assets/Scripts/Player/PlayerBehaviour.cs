@@ -141,13 +141,15 @@ public class PlayerBehaviour : MonoBehaviour
     {
         if (rb != null)
         {
-            Vector3 move = moveInput * speed * Time.fixedDeltaTime;
-            rb.MovePosition(rb.position + move);
+            // Appliquer la vitesse directement pour un mouvement plus fluide
+            Vector3 horizontalVel = moveInput * speed;
+            rb.linearVelocity = new Vector3(horizontalVel.x, rb.linearVelocity.y, horizontalVel.z);
         }
         else
         {
-            // Fallback kinematic movement si Rigidbody absent
-            transform.position += moveInput * speed * Time.deltaTime;
+            // Fallback kinematic movement si Rigidbody absent (lissé)
+            Vector3 targetPos = transform.position + moveInput * speed * Time.deltaTime;
+            transform.position = Vector3.Lerp(transform.position, targetPos, 0.85f);
         }
     }
 
@@ -169,6 +171,7 @@ public class PlayerBehaviour : MonoBehaviour
     // Détecte si le joueur touche le sol via les collisions
     private void OnCollisionEnter(Collision collision)
     {
+        transform.SetParent(collision.gameObject.GetComponentInChildren<Transform>().transform);
         foreach (ContactPoint contact in collision.contacts)
         {
             // Si le contact a une normale principalement vers le haut, on considère le sol
@@ -190,11 +193,13 @@ public class PlayerBehaviour : MonoBehaviour
                 return;
             }
         }
+        
         isGrounded = false;
     }
 
     private void OnCollisionExit(Collision collision)
     {
+        transform.SetParent(null);
         isGrounded = false;
     }
 

@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 
     private static GameManager instance;
 
-    public GameManager Instance() => instance;
+    public static GameManager Instance() => instance;
 
     private void Awake()
     {

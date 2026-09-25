@@ -28,10 +28,7 @@ public class PlayerHealthbar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (playerBehaviour != null && healthBarSlider != null)
-        {
-            healthBarSlider.value = Mathf.Clamp01(playerBehaviour.Health / 100f);
-        }
+
     }
 
     private void OnDestroy()

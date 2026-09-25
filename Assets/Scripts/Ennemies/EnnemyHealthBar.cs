@@ -9,6 +9,9 @@ public class EnemyHealthBar : MonoBehaviour
     [SerializeField] Enemy enemy;
     [SerializeField] private Vector3 worldOffset = new Vector3(0f, 2f, 0f);
     [SerializeField] private Camera targetCamera;
+    [Header("Visibility")]
+    [Tooltip("Si vrai, la barre n'apparaît que lorsque l'ennemi est dans le viewport de la caméra")]
+    [SerializeField] private bool onlyShowWhenInView = true;
 
     private Canvas parentCanvas;
 
@@ -64,6 +67,13 @@ public class EnemyHealthBar : MonoBehaviour
                 healthBarSlider.transform.position = worldPos;
             }
         }
+    }
+
+    private bool IsInView(Camera cam, Vector3 worldPosition)
+    {
+        Vector3 vp = cam.WorldToViewportPoint(worldPosition);
+        // z>0 devant la caméra et x,y dans [0,1]
+        return vp.z > 0f && vp.x >= 0f && vp.x <= 1f && vp.y >= 0f && vp.y <= 1f;
     }
 
     private void OnDestroy()

@@ -86,9 +86,16 @@ public class CameraController : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * smoothSpeed);
 
         // Appliquer la rotation horizontale au target (yaw) pour que le joueur suive la vue
-        Vector3 targetEuler = target.eulerAngles;
-        targetEuler.y = yaw;
-        target.eulerAngles = targetEuler;
+        Quaternion targetRot = Quaternion.Euler(0f, yaw, 0f);
+        // Si le target a un Rigidbody, utiliser MoveRotation pour être compatible avec la physique
+        if (target.TryGetComponent<Rigidbody>(out var targetRb))
+        {
+            targetRb.MoveRotation(Quaternion.Slerp(targetRb.rotation, targetRot, Time.deltaTime * smoothSpeed));
+        }
+        else
+        {
+            target.rotation = Quaternion.Slerp(target.rotation, targetRot, Time.deltaTime * smoothSpeed);
+        }
     }
 
     private void HandleMouseInput()

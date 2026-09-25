@@ -40,6 +40,39 @@ public class Platform : MonoBehaviour
         renderers = GetComponentsInChildren<Renderer>(includeInactive: true);
     }
 
+    /// <summary>
+    /// Applique une définition (PlatformDefinition) à cette instance.
+    /// Utiliser pour configurer une plateforme après instantiation depuis une factory.
+    /// </summary>
+    public void ApplyDefinition(PlateformsData.PlatformDefinition def)
+    {
+        if (def == null) return;
+        moves = def.moves;
+        speed = def.speed;
+        dir = def.dir;
+        isTemporary = def.isTemporary;
+        movementRange = def.movementRange;
+        disappearDelay = def.disappearDelay;
+        respawnTime = def.respawnTime;
+        selectedDefinition = def;
+    }
+
+    /// <summary>
+    /// Retourne la position de départ (utile pour le spacing)
+    /// </summary>
+    public Vector3 GetStartPosition()
+    {
+        return startPosition;
+    }
+
+    /// <summary>
+    /// Retourne la valeur de movementRange pour cette plateforme
+    /// </summary>
+    public float GetMovementRange()
+    {
+        return movementRange;
+    }
+
     private PlateformsData.PlatformDefinition selectedDefinition;
 
     void Start()

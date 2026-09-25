@@ -6,6 +6,14 @@ public abstract class Enemy : MonoBehaviour
     // Cette classe concerne les ennemies en générales et contient leurs fonctionnement globaux
 
     [SerializeField] protected Transform[] targets;
+    [SerializeField] private GameObject deathEffect;
+    [SerializeField] private float destroyDelay = 0.5f;
+    private bool isDead = false;
+
+    [Header("Jumping")]
+    [SerializeField] protected float jumpHeight = 1.2f;
+    [SerializeField] protected float jumpDuration = 0.6f;
+    protected bool isJumping = false;
 
     protected float health = 100f;
 
@@ -50,9 +58,12 @@ public abstract class Enemy : MonoBehaviour
         OnHealthChanged?.Invoke(health);
     }
 
-    [SerializeField] private GameObject deathEffect;
-    [SerializeField] private float destroyDelay = 0.5f;
-    private bool isDead = false;
+    // Permet d'assigner des targets (plateformes voisines)
+    public void SetTargets(Transform[] t)
+    {
+        targets = t;
+    }
+
 
 
     protected virtual void Die()
@@ -67,6 +78,8 @@ public abstract class Enemy : MonoBehaviour
             Instantiate(deathEffect, transform.position, Quaternion.identity);
         }
 
+    /// <summary>
+    /// Lance un saut vers la cible en suivant une trajectoire parabolique.
         // Désactiver les colliders pour éviter interactions post-mortem
         foreach (var col in GetComponents<Collider>())
         {
@@ -78,6 +91,49 @@ public abstract class Enemy : MonoBehaviour
 
         
     }
+    /// </summary>
+    public void StartJumpTo(Transform target)
+    {
+        if (target == null || isJumping) return;
+        StartCoroutine(JumpToCoroutine(target, jumpHeight, jumpDuration));
+    }
+
+    public void StartJumpTo(Transform target, float height, float duration)
+    {
+        if (target == null || isJumping) return;
+        StartCoroutine(JumpToCoroutine(target, height, duration));
+    }
+
+    protected System.Collections.IEnumerator JumpToCoroutine(Transform target, float height, float duration)
+    {
+        isJumping = true;
+        Vector3 start = transform.position;
+        Vector3 end = target.position;
+        float elapsed = 0f;
+
+        // Face la direction du saut
+        Vector3 lookDir = (end - start).normalized;
+        if (lookDir.sqrMagnitude > 0.0001f)
+            transform.rotation = Quaternion.LookRotation(lookDir, Vector3.up);
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            // Position linéaire entre start et end
+            Vector3 pos = Vector3.Lerp(start, end, t);
+            // Ajout d'une parabole
+            float parab = 4f * height * t * (1f - t); // peak at t=0.5
+            pos += Vector3.up * parab;
+            transform.position = pos;
+            yield return null;
+        }
+
+        // Assure la position finale exacte
+        transform.position = end;
+        isJumping = false;
+    }
+
 
 
 
