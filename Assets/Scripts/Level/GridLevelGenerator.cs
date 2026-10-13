@@ -84,7 +84,7 @@ public class GridLevelGenerator : MonoBehaviour
         {
             for (int c = 0; c < cols; c++)
             {
-                Vector3 pos = origin + new Vector3(c * spacingX, 0f, r * Random.Range(spacingZ, spacingZ + 5));
+                Vector3 pos = origin + new Vector3(c * spacingX, 0f, r * spacingZ);
                 // ensure inside bounds
                 if (LevelManager.Instance != null && !LevelManager.Instance.IsInsideBounds(pos))
                     continue;

@@ -218,4 +218,23 @@ public class Platform : MonoBehaviour
             gameObject.SetActive(false);
         }
     }
+
+    // À ajouter dans Platform.cs
+    public void ResetPlatformState()
+    {
+        playerVisited = false;
+        StopAllCoroutines(); // Arrête les coroutines de disparition en cours
+
+        // Réactive le collider et les renderers au cas où elle avait disparu
+        if (platformCollider != null) platformCollider.enabled = true;
+        if (renderers != null)
+        {
+            foreach (var r in renderers)
+            {
+                if (r != null) r.enabled = true;
+            }
+        }
+        gameObject.SetActive(true); // S'assure qu'elle est bien active
+        triggered = false;
+    }
 }

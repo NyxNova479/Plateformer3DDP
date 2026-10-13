@@ -51,7 +51,7 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     public void BuildPlatformGraph()
     {
-        platforms = FindObjectsOfType<Platform>();
+        platforms = FindObjectsByType<Platform>();
         platformNeighbors.Clear();
         if (platforms == null || platforms.Length == 0) return;
 
@@ -87,12 +87,15 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     public void AssignNeighborsToExistingEnemies()
     {
-        var enemies = FindObjectsOfType<Enemy>();
+        var enemies = FindObjectsByType<Enemy>();
         if (enemies == null || enemies.Length == 0) return;
         if (platforms == null || platforms.Length == 0) BuildPlatformGraph();
 
         foreach (var e in enemies)
         {
+            // Si l'ennemi a déjà des cibles définies (comme ton boss mis à la main), on ne les écrase pas !
+            if (e.HasTargetsAssigned()) continue;
+
             Platform nearest = FindNearestPlatform(e.transform.position);
             if (nearest != null)
             {
@@ -221,6 +224,8 @@ public class LevelManager : MonoBehaviour
         // fallback : centre des bounds
         return levelBounds.center;
     }
+
+
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()

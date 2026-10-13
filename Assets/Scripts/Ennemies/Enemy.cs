@@ -149,6 +149,12 @@ public abstract class Enemy : MonoBehaviour
     // Fonction de mouvement différente selon le type d'ennemie, à implémenter dans les classes filles
     public abstract void HandleMove();
 
+    public bool HasTargetsAssigned()
+    {
+        return targets != null && targets.Length > 0;
+    }
+
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
