@@ -130,30 +130,31 @@ public class GridLevelGenerator : MonoBehaviour
         // Spawn enemies on random safe platforms
         if (spawnEnemies && enemyPrefabs != null && enemyFactory != null && spawnedPlatforms.Count > 0)
         {
-            List<Platform> safePlatforms = spawnedPlatforms.FindAll(p => p != null);
-
             for (int i = 0; i < enemyCount; i++)
             {
-                if (safePlatforms.Count == 0) break;
-                int idx = Random.Range(0, safePlatforms.Count);
-                var plat = safePlatforms[idx];
+                int idx = Random.Range(0, spawnedPlatforms.Count);
+                var plat = spawnedPlatforms[idx];
+                if (plat == null) continue;
 
-                Vector3 spawnPos = plat.transform.position + Vector3.up * 0.5f;
+                Vector3 spawnPos = plat.transform.position + Vector3.up * 1.0f;
                 int rand = Random.Range(0, enemyPrefabs.Length);
 
-                // Crée l'ennemi
-                Enemy enemyScript = enemyFactory.SpawnEnemyPrefab(enemyPrefabs[rand], spawnPos);
+                GameObject enemyObj = enemyFactory.SpawnEnemyPrefab(enemyPrefabs[rand], spawnPos).gameObject;
 
+                // Assigne directement les voisins de la plateforme sur laquelle il spane !
+                Enemy enemyScript = enemyObj.GetComponent<Enemy>();
                 if (enemyScript != null)
                 {
-                    enemyScript.enabled = true;
-                    GameObject enemyObj = enemyScript.gameObject; // On récupère le GameObject  
+                    var neighbors = LevelManager.Instance.GetNeighborsForPlatform(plat);
+                    enemyScript.SetTargets(neighbors);
                 }
             }
-
+            
             if (LevelManager.Instance != null)
                 LevelManager.Instance.AssignNeighborsToExistingEnemies();
+        
         }
+
     }
 
 

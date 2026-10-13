@@ -103,6 +103,8 @@ public class LevelManager : MonoBehaviour
                 e.SetTargets(neigh);
             }
         }
+        Debug.Log("Targets assignées");
+
     }
 
     private Platform FindNearestPlatform(Vector3 pos)

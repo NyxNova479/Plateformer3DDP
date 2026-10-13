@@ -1,28 +1,33 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerBehaviour : MonoBehaviour
 {
+    [Header("Stats de base")]
     [SerializeField] private float health = 100f;
     [SerializeField] private float speed = 10f;
     [SerializeField] private float jumpForce = 5f;
-    [Header("Combat")]
-    [SerializeField] private float attackRange = 2f;
+
+    [Header("Combat & Spin Attack")]
     [SerializeField] private float attackDamage = 25f;
     [SerializeField] private float attackCooldown = 1f;
+    [SerializeField] private float spinDuration = 0.6f;       // Durée de l'attaque tournoyante
+    [SerializeField] private float spinRotationSpeed = 1200f; // Vitesse de rotation (degrés/sec)
+    [SerializeField] private float spinKillRadius = 1.5f;     // Rayon d'impact de l'attaque tournoyante
+    [SerializeField] private Transform rendererChild;         // L'enfant visuel du joueur (mesh/modèle 3D)
 
     private float lastAttackTime = -999f;
+    private bool isSpinning = false;
 
     [SerializeField] private bool isGrounded = true;
 
-    public float coyoteTime = 0.5f; 
+    public float coyoteTime = 0.5f;
     private float coyoteTimer;
 
     private Rigidbody rb;
     private Vector3 moveInput = Vector3.zero;
-
     private MovingPlatformRider platformRider;
-
 
     public float Speed
     {
@@ -45,7 +50,6 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    // Events pour observer la santé et la mort du joueur
     public event Action<float> OnHealthChanged;
     public event Action OnDeath;
 
@@ -64,7 +68,6 @@ public class PlayerBehaviour : MonoBehaviour
     {
         ReadInput();
 
-        // Vérification continue par Raycast
         CheckIfGrounded();
 
         if (isGrounded)
@@ -82,20 +85,18 @@ public class PlayerBehaviour : MonoBehaviour
             coyoteTimer = 0;
         }
 
+        // Clic gauche (ou touche d'attaque) déclenche le Spin
         if (Input.GetMouseButtonDown(0))
         {
             TryAttack();
         }
     }
 
-
     private void CheckIfGrounded()
     {
-        // Lance un petit rayon vers le bas depuis les pieds du joueur
         float rayLength = 1.2f;
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength))
         {
-            // Vérifie si l'objet touché est bien une plateforme active et avec son collider actif
             Collider col = hit.collider;
             if (col != null && col.enabled && (col.CompareTag("Platform") || col.GetComponentInParent<Platform>() != null))
             {
@@ -103,8 +104,6 @@ public class PlayerBehaviour : MonoBehaviour
                 return;
             }
         }
-
-        // Si le rayon ne touche rien de valide (ex: la plateforme a disparu), le joueur n'est plus au sol
         isGrounded = false;
     }
 
@@ -115,21 +114,55 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void TryAttack()
     {
-        if (Time.time < lastAttackTime + attackCooldown) return;
+        if (Time.time < lastAttackTime + attackCooldown || isSpinning) return;
         lastAttackTime = Time.time;
 
-        // Centre de l'attaque devant le joueur
-        Vector3 center = transform.position + transform.forward * (attackRange * 0.5f) + Vector3.up * 0.5f;
-        Collider[] hits = Physics.OverlapSphere(center, attackRange);
-        foreach (var c in hits)
+        // Lance la coroutine du tournoiement
+        StartCoroutine(SpinAttackRoutine());
+    }
+
+    private IEnumerator SpinAttackRoutine()
+    {
+        isSpinning = true;
+        float elapsed = 0f;
+
+        Vector3 originalScale = rendererChild != null ? rendererChild.localScale : Vector3.one;
+        Vector3 spinScale = new Vector3(originalScale.x * 1.2f, originalScale.y * 0.8f, originalScale.z * 1.2f);
+
+        while (elapsed < spinDuration)
         {
-            if (c == null) continue;
-            Enemy enemy = c.GetComponentInParent<Enemy>();
-            if (enemy != null)
+            elapsed += Time.deltaTime;
+
+            // Rotation rapide du visuel du joueur
+            if (rendererChild != null)
             {
-                enemy.TakeDamage(attackDamage);
+                rendererChild.Rotate(Vector3.up, spinRotationSpeed * Time.deltaTime, Space.World);
+                rendererChild.localScale = Vector3.Lerp(rendererChild.localScale, spinScale, 15f * Time.deltaTime);
             }
+
+            // Dégâts sur les ennemis dans le rayon du tournoiement
+            Collider[] hits = Physics.OverlapSphere(transform.position, spinKillRadius);
+            foreach (var hit in hits)
+            {
+                if (hit == null) continue;
+                Enemy enemy = hit.GetComponentInParent<Enemy>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(attackDamage);
+                }
+            }
+
+            yield return null;
         }
+
+        // Remet le visuel en place à la fin de l'attaque
+        if (rendererChild != null)
+        {
+            rendererChild.localRotation = Quaternion.identity;
+            rendererChild.localScale = originalScale;
+        }
+
+        isSpinning = false;
     }
 
     public void TakeDamage(float amount)
@@ -143,13 +176,10 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void Die()
     {
-
         enabled = false;
         Debug.Log("Player died");
-        // Optionnel : ajouter respawn ou UI
     }
 
-    // Lit les entrées et stocke le vecteur de mouvement
     private void ReadInput()
     {
         float forward = 0f;
@@ -163,18 +193,16 @@ public class PlayerBehaviour : MonoBehaviour
         moveInput = (transform.forward * forward + transform.right * right).normalized;
     }
 
-    // Applique le mouvement en FixedUpdate pour la physique
     private void ApplyMovement()
     {
         if (rb != null)
         {
-            // Appliquer la vitesse directement pour un mouvement plus fluide
+            // Si le joueur est en train de tournoyer, on peut optionnellement ralentir ou conserver son élan
             Vector3 horizontalVel = moveInput * speed;
             rb.linearVelocity = new Vector3(horizontalVel.x, rb.linearVelocity.y, horizontalVel.z);
         }
         else
         {
-            // Fallback kinematic movement si Rigidbody absent (lissé)
             Vector3 targetPos = transform.position + moveInput * speed * Time.deltaTime;
             transform.position = Vector3.Lerp(transform.position, targetPos, 0.85f);
         }
@@ -191,7 +219,6 @@ public class PlayerBehaviour : MonoBehaviour
             transform.position += Vector3.up * jumpForce * Time.deltaTime;
         }
 
-        // Détache immédiatement le joueur de la plateforme pour lui permettre de sauter librement
         if (platformRider != null)
         {
             platformRider.SetPlatform(null);
@@ -218,8 +245,6 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-
-
     private void OnCollisionExit(Collision collision)
     {
         if (collision.gameObject.GetComponentInParent<Platform>() != null)
@@ -229,4 +254,10 @@ public class PlayerBehaviour : MonoBehaviour
         isGrounded = false;
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        // Visualise la zone d'effet du Spin dans l'éditeur
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, spinKillRadius);
+    }
 }

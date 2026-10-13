@@ -506,7 +506,7 @@ GameObject:
   - component: {fileID: 349543051}
   m_Layer: 0
   m_Name: StartGround
-  m_TagString: Plateform
+  m_TagString: Platform
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -851,7 +851,7 @@ GameObject:
   - component: {fileID: 512928572}
   m_Layer: 0
   m_Name: Visual
-  m_TagString: Plateform
+  m_TagString: Platform
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1873,7 +1873,7 @@ GameObject:
   - component: {fileID: 1307465632}
   m_Layer: 0
   m_Name: ShopPlateform
-  m_TagString: Plateform
+  m_TagString: Platform
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2247,7 +2247,7 @@ MonoBehaviour:
   platformFactory: {fileID: 1403428447}
   spawnPoints: []
   boundsCenter: {x: 21.5, y: -0.45, z: 73.8}
-  boundsSize: {x: 48, y: 2, z: 126.6}
+  boundsSize: {x: 48, y: 13.6, z: 126.6}
   platformNeighborRadius: 6
   drawGizmos: 1
 --- !u!114 &1403428447
@@ -2946,15 +2946,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2647916750906339432, guid: 4171b96882b260e48a175213b3255951, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2647916750906339432, guid: 4171b96882b260e48a175213b3255951, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2647916750906339432, guid: 4171b96882b260e48a175213b3255951, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2921329039161161221, guid: 4171b96882b260e48a175213b3255951, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3048,7 +3048,7 @@ GameObject:
   - component: {fileID: 2031341920}
   m_Layer: 0
   m_Name: Visual
-  m_TagString: Plateform
+  m_TagString: Platform
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -11,24 +11,25 @@ public class LinerBehaviour : Enemy
 
     void Start()
     {
-        // Sécurité : si les targets ne sont pas encore assignés au démarrage, on évite le crash
-        if (targets == null || targets.Length == 0)
+        // 1. Vérification de sécurité : s'il n'y a pas de cibles valides, on demande au LevelManager
+        bool hasValidTargets = false;
+        if (targets != null && targets.Length > 0)
         {
-            // On essaie de récupérer automatiquement les plateformes proches si le LevelManager est présent
-            if (LevelManager.Instance != null)
+            foreach (var t in targets)
             {
-                // Demande au LevelManager de lui assigner des voisins immédiatement
-                LevelManager.Instance.AssignNeighborsToExistingEnemies();
-            }
-
-            // Si toujours aucun target, on quitte proprement sans désactiver bêtement le script
-            if (targets == null || targets.Length == 0)
-            {
-                return; 
+                if (t != null) { hasValidTargets = true; break; }
             }
         }
 
-        // --- Le reste de ton code d'initialisation habituel (recherche du plus proche, etc.) ---
+        if (!hasValidTargets && LevelManager.Instance != null)
+        {
+            LevelManager.Instance.AssignNeighborsToExistingEnemies();
+        }
+
+        // 2. Si le tableau est toujours vide, on arrête pour éviter un crash
+        if (targets == null || targets.Length == 0) return;
+
+        // 3. TON CODE : Trouve la cible la plus proche pour démarrer proprement
         float minDist = float.MaxValue;
         for (int i = 0; i < targets.Length; i++)
         {
@@ -37,9 +38,10 @@ public class LinerBehaviour : Enemy
             if (d < minDist)
             {
                 minDist = d;
-                 currentTargetIndex = i;
+                currentTargetIndex = i;
             }
         }
+
     }
 
     public override void HandleMove()
