@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     }
     public void ResetScore()
     {
-        score += 0;
+        score = 0;
         OnScoreChanged?.Invoke(score);
         Debug.Log("Score actuel : " + score);
     }

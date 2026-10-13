@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// Génère une grille de plateformes dans les bounds définis par LevelManager en utilisant PlatformFactory.
-/// Optionnellement spawn des ennemis sur des plateformes via EnemyFactory et prefab.
+/// S'occupe également de spawn des ennemis sur des plateformes via EnemyFactory et prefab.
 /// </summary>
 public class GridLevelGenerator : MonoBehaviour
 {
@@ -127,20 +127,30 @@ public class GridLevelGenerator : MonoBehaviour
             LevelManager.Instance.BuildPlatformGraph();
             LevelManager.Instance.AssignNeighborsToExistingEnemies();
         }
-        // Spawn enemies on random platforms
+        // Spawn enemies on random safe platforms
         if (spawnEnemies && enemyPrefabs != null && enemyFactory != null && spawnedPlatforms.Count > 0)
         {
+            List<Platform> safePlatforms = spawnedPlatforms.FindAll(p => p != null);
+
             for (int i = 0; i < enemyCount; i++)
             {
-                int idx = Random.Range(0, spawnedPlatforms.Count);
-                var plat = spawnedPlatforms[idx];
-                if (plat == null) continue;
+                if (safePlatforms.Count == 0) break;
+                int idx = Random.Range(0, safePlatforms.Count);
+                var plat = safePlatforms[idx];
+
                 Vector3 spawnPos = plat.transform.position + Vector3.up * 0.5f;
                 int rand = Random.Range(0, enemyPrefabs.Length);
-                enemyFactory.SpawnEnemyPrefab(enemyPrefabs[rand], spawnPos);
+
+                // Crée l'ennemi
+                Enemy enemyScript = enemyFactory.SpawnEnemyPrefab(enemyPrefabs[rand], spawnPos);
+
+                if (enemyScript != null)
+                {
+                    enemyScript.enabled = true;
+                    GameObject enemyObj = enemyScript.gameObject; // On récupère le GameObject  
+                }
             }
 
-            // After spawning enemies, assign neighbors again
             if (LevelManager.Instance != null)
                 LevelManager.Instance.AssignNeighborsToExistingEnemies();
         }

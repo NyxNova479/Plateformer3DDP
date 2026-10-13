@@ -11,17 +11,30 @@ public class CirclerBehaviour : Enemy
 
     void Start()
     {
+        // Sécurité : si les targets ne sont pas encore assignés au démarrage, on évite le crash
         if (targets == null || targets.Length == 0)
         {
-            Debug.LogWarning("CirclerBehaviour: no targets assigned.");
-            enabled = false;
-            return;
+
+
+            // On essaie de récupérer automatiquement les plateformes proches si le LevelManager est présent
+            if (LevelManager.Instance != null)
+            {
+                // Demande au LevelManager de lui assigner des voisins immédiatement
+                LevelManager.Instance.AssignNeighborsToExistingEnemies();
+            }
+
+            // Si toujours aucun target, on quitte proprement sans désactiver bêtement le script
+            if (targets == null || targets.Length == 0)
+            {
+                return; 
+            }
         }
 
-        // Choisit le target le plus proche au démarrage
+        // --- Le reste de ton code d'initialisation habituel (recherche du plus proche, etc.) ---
         float minDist = float.MaxValue;
         for (int i = 0; i < targets.Length; i++)
         {
+            if (targets[i] == null) continue;
             float d = Vector3.Distance(transform.position, targets[i].position);
             if (d < minDist)
             {
@@ -29,8 +42,8 @@ public class CirclerBehaviour : Enemy
                 currentTargetIndex = i;
             }
         }
-
         jumpTimer = jumpDelay; // Prêt à sauter rapidement au début
+
     }
 
     public override void HandleMove()

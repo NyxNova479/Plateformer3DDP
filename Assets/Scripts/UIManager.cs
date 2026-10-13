@@ -1,14 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Utilise TextMeshPro si tu en as besoin, ou remplace par UnityEngine.UI.Text
+using TMPro; 
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
     [Header("UI References")]
-    [SerializeField] private TextMeshProUGUI scoreText; // Ou Text classique
-    [SerializeField] private GameObject powerUpPanel;   // Panel affichant les choix de power-ups
+    [SerializeField] private TextMeshProUGUI scoreText; 
+    [SerializeField] private GameObject powerUpPanel;  
 
     private void Awake()
     {
@@ -22,12 +22,12 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        if (powerUpPanel != null) powerUpPanel.SetActive(false); // Cache le menu au départ
+        if (powerUpPanel != null) powerUpPanel.SetActive(false); 
     }
 
     private void OnEnable()
     {
-        // S'abonne aux changements de score du GameManager (Observer Pattern)
+        // S'abonne aux changements de score du GameManager 
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnScoreChanged += UpdateScoreUI;
@@ -77,7 +77,7 @@ public class UIManager : MonoBehaviour
     {
         if (GameManager.Instance != null && GameManager.Instance.SpendScore(100))
         {
-            // Tu peux ajouter une propriété jumpForce publique dans PlayerBehaviour si besoin
+            
             CloseShopMenu();
         }
     }

@@ -244,10 +244,11 @@ GameObject:
   - component: {fileID: 3291498399893942177}
   - component: {fileID: 7648066369267833178}
   - component: {fileID: 3275067663779929688}
+  - component: {fileID: -3681123130999827814}
   - component: {fileID: 2527616251309454622}
   m_Layer: 0
   m_Name: BossCircler
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -308,8 +309,7 @@ MonoBehaviour:
   destroyDelay: 0.5
   jumpHeight: 1.2
   jumpDuration: 0.6
-  orbitRadius: 4
-  angularSpeedDeg: 60
+  jumpDelay: 2.5
   attackDelay: 2.5
   projectilePrefab: {fileID: 3079822966138030826, guid: 7c85843f0051f6844b599c5bbd5ad077, type: 3}
   firePoint: {fileID: 5310642042399837061}
@@ -330,6 +330,18 @@ MonoBehaviour:
   worldOffset: {x: 0, y: 2, z: 0}
   targetCamera: {fileID: 0}
   onlyShowWhenInView: 1
+--- !u!114 &-3681123130999827814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4024179121828160288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfe38ebc21a2644e8545b1617362ac7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySafeNet
 --- !u!54 &2527616251309454622
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -93,7 +93,7 @@ public class LevelManager : MonoBehaviour
 
         foreach (var e in enemies)
         {
-            // Si l'ennemi a déjà des cibles définies (comme ton boss mis à la main), on ne les écrase pas !
+            // Si l'ennemi a déjà des cibles définies, on ne les écrase pas 
             if (e.HasTargetsAssigned()) continue;
 
             Platform nearest = FindNearestPlatform(e.transform.position);

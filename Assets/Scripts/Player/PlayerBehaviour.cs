@@ -64,16 +64,19 @@ public class PlayerBehaviour : MonoBehaviour
     {
         ReadInput();
 
+        // Vérification continue par Raycast
+        CheckIfGrounded();
+
         if (isGrounded)
         {
-            coyoteTimer = coyoteTime; 
+            coyoteTimer = coyoteTime;
         }
         else
         {
-            coyoteTimer -= Time.deltaTime; 
+            coyoteTimer -= Time.deltaTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && coyoteTimer>0f)
+        if (Input.GetKeyDown(KeyCode.Space) && coyoteTimer > 0f)
         {
             HandleJump();
             coyoteTimer = 0;
@@ -83,6 +86,26 @@ public class PlayerBehaviour : MonoBehaviour
         {
             TryAttack();
         }
+    }
+
+
+    private void CheckIfGrounded()
+    {
+        // Lance un petit rayon vers le bas depuis les pieds du joueur
+        float rayLength = 1.2f;
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength))
+        {
+            // Vérifie si l'objet touché est bien une plateforme active et avec son collider actif
+            Collider col = hit.collider;
+            if (col != null && col.enabled && (col.CompareTag("Platform") || col.GetComponentInParent<Platform>() != null))
+            {
+                isGrounded = true;
+                return;
+            }
+        }
+
+        // Si le rayon ne touche rien de valide (ex: la plateforme a disparu), le joueur n'est plus au sol
+        isGrounded = false;
     }
 
     void FixedUpdate()
@@ -195,19 +218,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    private void OnCollisionStay(Collision collision)
-    {
-        foreach (ContactPoint contact in collision.contacts)
-        {
-            if (contact.normal.y > 0.5f)
-            {
-                isGrounded = true;
-                return;
-            }
-        }
-        
-        isGrounded = false;
-    }
+
 
     private void OnCollisionExit(Collision collision)
     {

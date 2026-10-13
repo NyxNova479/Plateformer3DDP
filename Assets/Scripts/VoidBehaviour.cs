@@ -31,5 +31,9 @@ public class VoidBehaviour : MonoBehaviour
 
             Debug.Log("Le joueur est tombé dans le vide : Score et plateformes réinitialisés.");
         }
+        if (other.CompareTag("Enemy"))
+        {
+            other.GetComponent<EnemySafetyNet>().RespawnEnemy();
+        }
     }
 }
