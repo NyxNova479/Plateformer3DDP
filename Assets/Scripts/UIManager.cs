@@ -77,7 +77,18 @@ public class UIManager : MonoBehaviour
     {
         if (GameManager.Instance != null && GameManager.Instance.SpendScore(100))
         {
-            
+            PlayerBehaviour player = FindAnyObjectByType<PlayerBehaviour>();
+            if (player != null) player.JumpForce += 15f;
+            CloseShopMenu();
+        }
+    }
+    // Bouton 3 : Choisir le boost d'Attack
+    public void BuyAttackBoost()
+    {
+        if (GameManager.Instance != null && GameManager.Instance.SpendScore(100))
+        {
+            PlayerBehaviour player = FindAnyObjectByType<PlayerBehaviour>();
+            if (player != null) player.AttackDamage += 10f;
             CloseShopMenu();
         }
     }

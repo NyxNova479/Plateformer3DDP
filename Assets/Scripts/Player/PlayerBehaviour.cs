@@ -50,6 +50,9 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
+    public float JumpForce { get => jumpForce; set => jumpForce = value; }
+    public float AttackDamage { get => attackDamage; set => attackDamage = value; }
+
     public event Action<float> OnHealthChanged;
     public event Action OnDeath;
 
@@ -94,8 +97,10 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void CheckIfGrounded()
     {
-        float rayLength = 1.2f;
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength))
+        float rayLength = 0.7f;
+        Vector3 origin = transform.position + Vector3.up * 0.2f; // Légèrement au-dessus des pieds
+
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, rayLength))
         {
             Collider col = hit.collider;
             if (col != null && col.enabled && (col.CompareTag("Platform") || col.GetComponentInParent<Platform>() != null))
@@ -104,7 +109,31 @@ public class PlayerBehaviour : MonoBehaviour
                 return;
             }
         }
+
+
         isGrounded = false;
+    }
+
+    private void HandleJump()
+    {
+        // Empêche un nouveau saut si le joueur n'est ni au sol ni dans sa fenêtre de coyote légitime
+        if (!isGrounded && coyoteTimer <= 0f) return;
+
+        if (rb != null)
+        {
+            // Conserve la vélocité horizontale mais écrase la vélocité Y pour un saut net
+            Vector3 vel = rb.linearVelocity;
+            vel.y = JumpForce;
+            rb.linearVelocity = vel;
+        }
+
+        if (platformRider != null)
+        {
+            platformRider.SetPlatform(null);
+        }
+
+        isGrounded = false;
+        coyoteTimer = 0f; // Empêche immédiatement un deuxième saut 
     }
 
     void FixedUpdate()
@@ -148,7 +177,7 @@ public class PlayerBehaviour : MonoBehaviour
                 Enemy enemy = hit.GetComponentInParent<Enemy>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(attackDamage);
+                    enemy.TakeDamage(AttackDamage);
                 }
             }
 
@@ -208,24 +237,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    private void HandleJump()
-    {
-        if (rb != null)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        }
-        else
-        {
-            transform.position += Vector3.up * jumpForce * Time.deltaTime;
-        }
 
-        if (platformRider != null)
-        {
-            platformRider.SetPlatform(null);
-        }
-
-        isGrounded = false;
-    }
 
     private void OnCollisionEnter(Collision collision)
     {

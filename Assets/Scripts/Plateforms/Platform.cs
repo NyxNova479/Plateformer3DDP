@@ -31,7 +31,7 @@ public class Platform : MonoBehaviour
     private Vector3 startPosition;
     private float elapsed = 0f;
     private bool triggered = false;
-    private Collider platformCollider;
+    public Collider platformCollider;
     private Renderer[] renderers;
 
     private bool playerVisited = false;

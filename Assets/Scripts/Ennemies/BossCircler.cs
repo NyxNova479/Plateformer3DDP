@@ -133,7 +133,14 @@ public class BossCircler : Enemy
             GameManager.Instance.AddScore(500);
         }
 
-        Debug.Log("Boss vaincu ! Niveau terminé !");
+        Debug.Log("Boss vaincu ! Lancement de la séquence de fin.");
+
+        // Déclenche le fondu au noir et l'affichage du score final
+        if (LevelVictoryManager.Instance != null)
+        {
+            LevelVictoryManager.Instance.TriggerVictory();
+        }
+
         base.Die();
     }
 }
