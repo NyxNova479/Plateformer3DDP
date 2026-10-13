@@ -6,6 +6,7 @@ public class VoidBehaviour : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            GameManager.Instance.ResetScore();
             other.transform.position = new Vector3(3, 1, 5);
         }
     }

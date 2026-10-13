@@ -21,6 +21,8 @@ public class PlayerBehaviour : MonoBehaviour
     private Rigidbody rb;
     private Vector3 moveInput = Vector3.zero;
 
+    private MovingPlatformRider platformRider;
+
 
     public float Speed
     {
@@ -54,6 +56,8 @@ public class PlayerBehaviour : MonoBehaviour
         {
             Debug.LogWarning("PlayerBehaviour: Rigidbody not found. Movement and jump require a Rigidbody.");
         }
+        platformRider = GetComponent<MovingPlatformRider>();
+        if (platformRider == null) platformRider = gameObject.AddComponent<MovingPlatformRider>();
     }
 
     void Update()
@@ -157,24 +161,32 @@ public class PlayerBehaviour : MonoBehaviour
     {
         if (rb != null)
         {
-            // Impulsion verticale
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
         else
         {
-            // Fallback simple
             transform.position += Vector3.up * jumpForce * Time.deltaTime;
         }
+
+        // Détache immédiatement le joueur de la plateforme pour lui permettre de sauter librement
+        if (platformRider != null)
+        {
+            platformRider.SetPlatform(null);
+        }
+
         isGrounded = false;
     }
 
-    // Détecte si le joueur touche le sol via les collisions
     private void OnCollisionEnter(Collision collision)
     {
-        transform.SetParent(collision.gameObject.GetComponentInChildren<Transform>().transform);
+        Platform plat = collision.gameObject.GetComponentInParent<Platform>();
+        if (plat != null)
+        {
+            platformRider.SetPlatform(plat.transform);
+        }
+
         foreach (ContactPoint contact in collision.contacts)
         {
-            // Si le contact a une normale principalement vers le haut, on considère le sol
             if (contact.normal.y > 0.5f)
             {
                 isGrounded = true;
@@ -199,7 +211,10 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void OnCollisionExit(Collision collision)
     {
-        transform.SetParent(null);
+        if (collision.gameObject.GetComponentInParent<Platform>() != null)
+        {
+            platformRider.SetPlatform(null);
+        }
         isGrounded = false;
     }
 

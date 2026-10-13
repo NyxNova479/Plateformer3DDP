@@ -1,29 +1,46 @@
 using UnityEngine;
-using TMPro;
-using UnityEditor;
+using System;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance { get; private set; }
 
-    private static GameManager instance;
+    [SerializeField] private int score = 0;
+    public int Score => score;
 
-    public static GameManager Instance() => instance;
+    public event Action<int> OnScoreChanged;
 
     private void Awake()
     {
-        if(instance != null) Destroy(this.gameObject);
-        instance = this;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void AddScore(int amount)
     {
-        
+        score += amount;
+        OnScoreChanged?.Invoke(score);
+        Debug.Log("Score actuel : " + score);
+    }
+    public void ResetScore()
+    {
+        score += 0;
+        OnScoreChanged?.Invoke(score);
+        Debug.Log("Score actuel : " + score);
     }
 
-    // Update is called once per frame
-    void Update()
+    public bool SpendScore(int cost)
     {
-        
+        if (score >= cost)
+        {
+            score -= cost;
+            OnScoreChanged?.Invoke(score);
+            return true;
+        }
+        return false; // Pas assez de points
     }
 }

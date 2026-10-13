@@ -34,6 +34,8 @@ public class Platform : MonoBehaviour
     private Collider platformCollider;
     private Renderer[] renderers;
 
+    private bool playerVisited = false;
+
     void Awake()
     {
         platformCollider = GetComponent<Collider>();
@@ -152,8 +154,17 @@ public class Platform : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.CompareTag("Player") && !playerVisited)
+        {
+            playerVisited = true;
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.AddScore(10); // 10 points par nouvelle plateforme
+            }
+        }
         if (!isTemporary && config == null)
             return;
+
 
         bool temp = isTemporary;
         if (config != null)

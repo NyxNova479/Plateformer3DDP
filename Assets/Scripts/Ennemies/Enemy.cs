@@ -78,8 +78,11 @@ public abstract class Enemy : MonoBehaviour
             Instantiate(deathEffect, transform.position, Quaternion.identity);
         }
 
-    /// <summary>
-    /// Lance un saut vers la cible en suivant une trajectoire parabolique.
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddScore(50); // 50 points pour un ennemi tué !
+        }
+
         // Désactiver les colliders pour éviter interactions post-mortem
         foreach (var col in GetComponents<Collider>())
         {
